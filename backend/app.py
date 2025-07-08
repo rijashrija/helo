@@ -1,65 +1,86 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import pickle
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import string
-from flask import Flask, send_from_directory
 
 # Initialize Flask app
-# app = Flask(__name__)
 app = Flask(__name__, static_folder="../build", static_url_path="")
-CORS(app)  # Enable CORS for React frontend
+CORS(app)
+
 # Download NLTK data (if not already present)
 nltk.download('punkt')
 nltk.download('stopwords')
 
+# Initialize stemmer
+ps = PorterStemmer()
+
 # Load ML model and vectorizer
 try:
-    model = pickle.load(open('models/model.pkl', 'rb'))
-    vectorizer = pickle.load(open('models/vectorizer.pkl', 'rb'))
+    model = pickle.load(open('models/model1.pkl', 'rb'))
+    vectorizer = pickle.load(open('models/vectorizer1.pkl', 'rb'))
 except Exception as e:
-    raise RuntimeError(f"Failed to load model: {str(e)}")
+    raise RuntimeError(f"Failed to load model or vectorizer: {str(e)}")
 
-# Text preprocessing function
+# ✅ Exact preprocessing logic from training phase
 def preprocess_text(text):
     text = text.lower()
-    tokens = nltk.word_tokenize(text)
-    tokens = [word for word in tokens if word.isalnum()]
-    tokens = [word for word in tokens if word not in stopwords.words('english') and word not in string.punctuation]
-    stemmer = PorterStemmer()
-    tokens = [stemmer.stem(word) for word in tokens]
-    return " ".join(tokens)
+    text = nltk.word_tokenize(text)
 
-# API Routes
+    y = []
+    for i in text:
+        if i.isalnum():
+            y.append(i)
+
+    text = y[:]
+    y.clear()
+
+    for i in text:
+        if i not in stopwords.words('english') and i not in string.punctuation:
+            y.append(i)
+
+    text = y[:]
+    y.clear()
+
+    for i in text:
+        y.append(ps.stem(i))
+
+    return " ".join(y)
+
+# Serve React frontend
 @app.route('/')
 def serve():
     return send_from_directory(app.static_folder, 'index.html')
 
-# Ensure all other routes (like /analyser) also serve index.html
 @app.route('/analyser')
 def serve_analyser():
     return send_from_directory(app.static_folder, 'index.html')
 
+# 🚀 Prediction route
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         data = request.get_json()
         message = data['message']
-        
-        # Preprocess text
+
+        # Preprocess & transform
         processed_text = preprocess_text(message)
-        
-        # Vectorize input
         X = vectorizer.transform([processed_text])
-        
-        # Predict
+
+        # Predict label and confidence
         prediction = model.predict(X)[0]
+        probabilities = model.predict_proba(X)[0]
+        confidence = max(probabilities) * 100  # e.g., 93.85
+
         result = "Spam" if prediction == 1 else "Not Spam"
-        
-        return jsonify({"result": result})
-    
+
+        return jsonify({
+            "result": result,
+            "confidence": round(confidence, 2)
+        })
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

@@ -8,7 +8,6 @@ const Analyser = ({ emailContent, setEmailContent }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Update both local and parent state when content changes
   const handleContentChange = (e) => {
     const newContent = e.target.value;
     setContent(newContent);
@@ -17,34 +16,36 @@ const Analyser = ({ emailContent, setEmailContent }) => {
     }
   };
 
-  const handleAnalyze = async () => {
-    if (!content.trim()) {
-      setAnalysisResult(null);
-      return;
-    }
+const handleAnalyze = async () => {
+  if (!content.trim()) {
+    setAnalysisResult(null);
+    return;
+  }
 
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Send to your Flask backend for processing
-      const response = await axios.post('http://localhost:5000/predict', {
-        message: content
-      });
-      
-      // Format the result to match your friend's UI
-      setAnalysisResult({
-        score: response.data.score || (response.data.result === 'Spam' ? 90 : 10), // Adjust based on your API
-        isSpam: response.data.result === 'Spam'
-      });
-    } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  setError(null);
 
-  // Your friend's styling
+  try {
+    const response = await axios.post('http://localhost:5000/predict', {
+      message: content
+    });
+
+    const result = response.data.result;
+    const confidence = response.data.confidence || (result === 'Spam' ? 90 : 10);
+
+    setAnalysisResult({
+      score: confidence,
+      isSpam: result === 'Spam',
+      indicators: response.data.indicators || 3
+    });
+  } catch (err) {
+    setError(err.response?.data?.error || 'An error occurred');
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   const styles = {
     container: {
       fontFamily: 'Arial, sans-serif',
@@ -86,7 +87,7 @@ const Analyser = ({ emailContent, setEmailContent }) => {
       borderRadius: '5px',
       border: '1px solid #ccc',
       resize: 'vertical',
-      maxHeight: '300px',  
+      maxHeight: '300px',
       boxSizing: 'border-box'
     },
     footer: {
@@ -141,8 +142,8 @@ const Analyser = ({ emailContent, setEmailContent }) => {
           />
           <div style={styles.footer}>
             <span>{content.length} characters</span>
-            <button 
-              style={loading ? {...styles.button, ...styles.button.disabled} : styles.button}
+            <button
+              style={loading ? { ...styles.button, ...styles.button.disabled } : styles.button}
               onClick={handleAnalyze}
               disabled={loading}
             >
@@ -162,16 +163,49 @@ const Analyser = ({ emailContent, setEmailContent }) => {
               <p>Analyzing your email...</p>
             </div>
           ) : analysisResult ? (
-            <div style={{ textAlign: 'center' }}>
-              <h3>Analysis Result</h3>
-              <p>Spam Score: {analysisResult.score}/100</p>
-              <p style={{ 
-                color: analysisResult.isSpam ? 'red' : 'green',
-                fontWeight: 'bold',
-                fontSize: '1.2rem'
+            <div style={{
+              backgroundColor: '#fff5f5',
+              border: '1px solid #f5c2c7',
+              borderRadius: '8px',
+              padding: '1rem',
+              color: '#842029',
+              width: '100%',
+              maxWidth: '450px',
+              fontFamily: 'Arial, sans-serif'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                <strong>Spam Detected</strong>
+                <span style={{
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  fontSize: '0.75rem',
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: '5px',
+                  marginLeft: 'auto'
+                }}>High Risk</span>
+              </div>
+
+              <div style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>Confidence Score</div>
+              <div style={{
+                backgroundColor: '#e9ecef',
+                height: '10px',
+                borderRadius: '5px',
+                overflow: 'hidden',
+                marginBottom: '0.5rem'
               }}>
-                {analysisResult.isSpam ? '⚠️ Likely Spam' : '✅ Not Spam'}
-              </p>
+                <div style={{
+                  width: `${analysisResult.score}%`,
+                  backgroundColor: '#dc3545',
+                  height: '100%'
+                }}></div>
+              </div>
+              <div style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                This email shows {analysisResult.indicators || 3} spam indicators with a {analysisResult.score}% confidence that it's malicious.
+              </div>
+              <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
+                Exercise extreme caution.
+              </div>
             </div>
           ) : (
             <div style={{ textAlign: 'center', color: '#666' }}>
