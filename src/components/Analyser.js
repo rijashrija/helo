@@ -16,35 +16,34 @@ const Analyser = ({ emailContent, setEmailContent }) => {
     }
   };
 
-const handleAnalyze = async () => {
-  if (!content.trim()) {
-    setAnalysisResult(null);
-    return;
-  }
+  const handleAnalyze = async () => {
+    if (!content.trim()) {
+      setAnalysisResult(null);
+      return;
+    }
 
-  setLoading(true);
-  setError(null);
+    setLoading(true);
+    setError(null);
 
-  try {
-    const response = await axios.post('http://localhost:5000/predict', {
-      message: content
-    });
+    try {
+      const response = await axios.post('http://localhost:5000/predict', {
+        message: content
+      });
 
-    const result = response.data.result;
-    const confidence = response.data.confidence || (result === 'Spam' ? 90 : 10);
+      const result = response.data.result;
+      const finalConfidence = response.data.final_confidence || 50;
 
-    setAnalysisResult({
-      score: confidence,
-      isSpam: result === 'Spam',
-      indicators: response.data.indicators || 3
-    });
-  } catch (err) {
-    setError(err.response?.data?.error || 'An error occurred');
-  } finally {
-    setLoading(false);
-  }
-};
-
+      setAnalysisResult({
+        score: finalConfidence,
+        isSpam: result === 'Spam',
+        indicators: response.data.indicators || []
+      });
+    } catch (err) {
+      setError(err.response?.data?.error || 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const styles = {
     container: {
@@ -175,15 +174,17 @@ const handleAnalyze = async () => {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-                <strong>Spam Detected</strong>
+                <strong>{analysisResult.isSpam ? 'Spam Detected' : 'Looks Safe'}</strong>
                 <span style={{
-                  backgroundColor: '#dc3545',
+                  backgroundColor: analysisResult.isSpam ? '#dc3545' : '#28a745',
                   color: 'white',
                   fontSize: '0.75rem',
                   padding: '0.2rem 0.5rem',
                   borderRadius: '5px',
                   marginLeft: 'auto'
-                }}>High Risk</span>
+                }}>
+                  {analysisResult.isSpam ? 'High Risk' : 'Low Risk'}
+                </span>
               </div>
 
               <div style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>Confidence Score</div>
@@ -196,16 +197,27 @@ const handleAnalyze = async () => {
               }}>
                 <div style={{
                   width: `${analysisResult.score}%`,
-                  backgroundColor: '#dc3545',
+                  backgroundColor: analysisResult.isSpam ? '#dc3545' : '#28a745',
                   height: '100%'
                 }}></div>
               </div>
               <div style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                This email shows {analysisResult.indicators || 3} spam indicators with a {analysisResult.score}% confidence that it's malicious.
+                This email shows {(analysisResult.indicators?.length || 0)} spam indicators with a {analysisResult.score}% confidence that it's {analysisResult.isSpam ? 'malicious' : 'safe'}.
               </div>
-              <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
-                Exercise extreme caution.
-              </div>
+
+              {/* 🔍 List Indicators */}
+              {analysisResult.indicators && analysisResult.indicators.length > 0 && (
+                <div style={{ fontSize: '0.85rem', color: '#333', marginTop: '1rem' }}>
+                  <strong>Indicators:</strong>
+                  <ul style={{ paddingLeft: '1.25rem', marginTop: '0.5rem' }}>
+                    {analysisResult.indicators.map((item, index) => (
+                      <li key={index}>
+                        <strong>{item.type}:</strong> {item.description}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           ) : (
             <div style={{ textAlign: 'center', color: '#666' }}>
