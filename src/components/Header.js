@@ -1,15 +1,19 @@
 import React from "react";
 import { Link } from "react-router";
-// import {useScrollTo} from './useScrollTo';
-
 
 function Header() {
-    const handleClick = (id) => {
+  const handleClick = (id) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    window.location.href = '/'; // Full page reload to reset state
+  };
+
   const styles = {
     wrapper: {
       width: "100%",
@@ -47,6 +51,7 @@ function Header() {
       display: "flex",
       gap: "30px",
       flexWrap: "wrap",
+      alignItems: "center",
     },
     link: {
       color: "#374151",
@@ -59,9 +64,24 @@ function Header() {
     linkHover: {
       color: "#2563eb",
     },
+    logoutButton: {
+      background: "none",
+      border: "none",
+      color: "#374151",
+      fontWeight: "500",
+      fontSize: "16px",
+      cursor: "pointer",
+      padding: 0,
+      fontFamily: "inherit",
+      transition: "color 0.3s ease",
+    }
   };
 
   const handleHover = (e, hover) => {
+    e.target.style.color = hover ? styles.linkHover.color : styles.link.color;
+  };
+
+  const handleLogoutHover = (e, hover) => {
     e.target.style.color = hover ? styles.linkHover.color : styles.link.color;
   };
 
@@ -80,43 +100,53 @@ function Header() {
           <span style={styles.logoText}>SpamGuard</span>
         </div>
 
-        {/* Right: Navigation */}
-        <nav style={styles.nav}>
-          {/* <a
-            href="/analyser"
-            style={styles.link}
-            onMouseOver={e => handleHover(e, true)}
-            onMouseOut={e => handleHover(e, false)}
-          >
-            Analyzer
-          </a> */}
-          <Link to="/analyser"
-          style={styles.link}
-            onMouseOver={e => handleHover(e, true)}
-            onMouseOut={e => handleHover(e, false)}>Analyze</Link>  
-          <Link
-            to="/#features"
-            style={styles.link}
-            onMouseOver={e => handleHover(e, true)}
-            onMouseOut={e => handleHover(e, false)}
-            onClick={(e)=>{ handleClick('features');
-    const element = document.getElementById('features');
-    if (element) element.scrollIntoView({ behavior: 'smooth' });}}
-          >
-            Features
-          </Link>
-          <Link
-            to="/how-it-works"
-            style={styles.link}
-            onMouseOver={e => handleHover(e, true)}
-            onMouseOut={e => handleHover(e, false)}
-             onClick={(e)=>{ handleHover(e, false);
-    const element = document.getElementById('how-it-works');
-    if (element) element.scrollIntoView({ behavior: 'smooth' });}}
-          >
-            How It Works
-          </Link>
-        </nav>
+        {/* Right: Navigation - Only show when authenticated */}
+        {localStorage.getItem('isAuthenticated') && (
+          <nav style={styles.nav}>
+            <Link 
+              to="/analyser"
+              style={styles.link}
+              onMouseOver={e => handleHover(e, true)}
+              onMouseOut={e => handleHover(e, false)}
+            >
+              Analyze
+            </Link>
+            <Link
+              to="/#features"
+              style={styles.link}
+              onMouseOver={e => handleHover(e, true)}
+              onMouseOut={e => handleHover(e, false)}
+              onClick={(e) => {
+                handleClick('features');
+                const element = document.getElementById('features');
+                if (element) element.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Features
+            </Link>
+            <Link
+              to="/how-it-works"
+              style={styles.link}
+              onMouseOver={e => handleHover(e, true)}
+              onMouseOut={e => handleHover(e, false)}
+              onClick={(e) => {
+                handleHover(e, false);
+                const element = document.getElementById('how-it-works');
+                if (element) element.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              How It Works
+            </Link>
+            <button
+              style={styles.logoutButton}
+              onClick={handleLogout}
+              onMouseOver={e => handleLogoutHover(e, true)}
+              onMouseOut={e => handleLogoutHover(e, false)}
+            >
+              Logout
+            </button>
+          </nav>
+        )}
       </header>
     </div>
   );

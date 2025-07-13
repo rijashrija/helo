@@ -150,6 +150,27 @@ def serve():
 def serve_analyser():
     return send_from_directory(app.static_folder, 'index.html')
 
+
+# In app.py
+users = {
+    "admin@example.com": "password123"  # Demo only - hash passwords in production
+}
+
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        
+        if email in users and users[email] == password:
+            return jsonify({"success": True})
+        else:
+            return jsonify({"success": False, "error": "Invalid credentials"}), 401
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 # 🚀 Prediction route with hybrid analysis
 @app.route('/predict', methods=['POST'])
 def predict():

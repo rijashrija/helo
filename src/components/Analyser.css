@@ -79,3 +79,75 @@ button:disabled {
   border-radius: 4px;
   margin-top: 1rem;
 }
+
+/* Sample Emails Section */
+.sample-emails-section {
+  margin-top: 3rem;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.sample-emails-section h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
+.sample-emails-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.email-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.email-card:hover {
+  transform: translateY(-5px);
+}
+
+.email-card h3 {
+  margin-top: 0;
+  color: #2563eb;
+  font-size: 1.1rem;
+}
+
+.email-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+
+.use-sample-btn {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 1rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.use-sample-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sample-emails-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .analyser-panels {
+    flex-direction: column;
+  }
+}
