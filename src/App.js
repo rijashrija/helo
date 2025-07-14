@@ -1,4 +1,3 @@
-// App.js
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router';
 import Login from "./components/Login";
@@ -19,7 +18,16 @@ function App() {
   const handleSelectEmail = (email) => {
     setEmailContent(email);
     setTimeout(() => {
-      document.getElementById("analyser")?.scrollIntoView({ behavior: "smooth" });
+      const analyserElement = document.getElementById("analyser");
+      const textareaElement = document.getElementById("analyser-textarea");
+      
+      if (analyserElement) {
+        analyserElement.scrollIntoView({ behavior: "smooth" });
+      }
+      
+      if (textareaElement) {
+        textareaElement.focus();
+      }
     }, 100);
   };
 
@@ -32,12 +40,6 @@ function App() {
             <Route path="/" element={
               <>
                 <EmailSpamChecker />
-                <Analyser 
-                  emailContent={emailContent} 
-                  setEmailContent={setEmailContent} 
-                  id="analyser" 
-                />
-                <SampleEmails onSelectEmail={handleSelectEmail} />
                 <FeatureSection id="features" />
                 <HowItWorks id="how-it-works" />
                 <Footer />
@@ -46,10 +48,14 @@ function App() {
             <Route 
               path="/analyser" 
               element={
-                <Analyser 
-                  emailContent={emailContent} 
-                  setEmailContent={setEmailContent} 
-                />
+                <>
+                  <Analyser 
+                    emailContent={emailContent} 
+                    setEmailContent={setEmailContent} 
+                    id="analyser" 
+                  />
+                  <SampleEmails onSelectEmail={handleSelectEmail} />
+                </>
               } 
             />
             <Route path="*" element={<Navigate to="/" />} />

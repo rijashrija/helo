@@ -167,16 +167,23 @@ IRS Automated System`,
   };
 
   const buttonStyle = {
-    backgroundColor: '#f0f0f0',
-    border: '1px solid #ccc',
-    padding: '12px 130px', // wider button
+     backgroundColor: '#5c7cfa',
+    color: 'white',
+    border: 'none',
+    padding: '12px 20px',
     borderRadius: '8px',
     fontSize: '15px',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    width: 'fit-content'
+    width: '100%',
+    justifyContent: 'center',
+    marginTop: '1rem',
+    transition: 'background-color 0.2s',
+    ':hover': {
+      backgroundColor: '#4a6cfa'
+    }
   };
 
   return (

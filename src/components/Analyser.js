@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import axios from 'axios';
 import './Analyser.css';
 
@@ -42,6 +42,9 @@ Western Union to Mr. John Smith, Nigeria.
 ACT NOW - Offer expires in 24 hours!`
     }
   ];
+  useEffect(() => {
+    setContent(emailContent || '');
+  }, [emailContent]);
 
   const handleContentChange = (e) => {
     const newContent = e.target.value;
@@ -320,31 +323,7 @@ ACT NOW - Offer expires in 24 hours!`
         </div>
       </div>
       
-      {/* Sample Emails Section */}
-      {/* <div style={styles.sampleSection}>
-        <h2 style={styles.sampleHeader}>Try with Sample Emails</h2>
-        <div style={styles.sampleGrid}>
-          {sampleEmails.map(email => (
-            <div 
-              key={email.id} 
-              style={styles.sampleCard}
-              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'}
-              onMouseLeave={e => e.currentTarget.style.transform = ''}
-            >
-              <h3>{email.subject}</h3>
-              <p>{email.preview}</p>
-              <button 
-                onClick={() => handleUseSample(email.fullContent)}
-                style={styles.sampleButton}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#4a6cfa'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#5c7cfa'}
-              >
-                Use This Sample
-              </button>
-            </div>
-          ))}
-        </div>
-      </div> */}
+     
       
     </>
   );
