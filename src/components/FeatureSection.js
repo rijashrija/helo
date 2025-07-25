@@ -1,7 +1,7 @@
 import React from 'react';
 import { Shield, Zap, Eye, Brain, Lock, TrendingUp } from 'lucide-react';
-const FeatureSection = ({id}) => {
-   
+
+const FeatureSection = () => {
   const features = [
     {
       icon: Brain,
@@ -34,11 +34,13 @@ const FeatureSection = ({id}) => {
       description: 'Our algorithms continuously improve by learning from new spam patterns and emerging threats.'
     }
   ];
+
   const styles = {
     container: {
       maxWidth: '1200px',
       margin: '0 auto',
-      padding: '40px 20px'
+      padding: '40px 20px',
+      backgroundColor: '#e6f0fd' 
     },
     sectionTitle: {
       textAlign: 'center',
@@ -97,7 +99,7 @@ const FeatureSection = ({id}) => {
   };
 
   return (
-    <section id={id} style={styles.container}>
+    <div id="features" style={styles.container}>
       <div style={styles.sectionTitle}>
         <h3 style={styles.heading}>Powerful Features</h3>
         <p style={styles.subheading}>
@@ -124,7 +126,7 @@ const FeatureSection = ({id}) => {
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 };
 
